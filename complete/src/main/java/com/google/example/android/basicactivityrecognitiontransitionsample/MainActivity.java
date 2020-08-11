@@ -35,13 +35,10 @@ import android.view.View;
 import com.example.android.common.logger.LogFragment;
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.ActivityTransition;
-import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Demos enabling/disabling Activity Recognition transitions, e.g., starting or stopping a walk,
