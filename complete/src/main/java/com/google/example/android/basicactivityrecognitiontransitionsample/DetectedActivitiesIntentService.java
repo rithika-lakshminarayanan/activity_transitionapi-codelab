@@ -17,6 +17,7 @@ import java.util.Locale;
 
 public class DetectedActivitiesIntentService extends Service {
     protected static final String TAG = "DetectedActivitiesIS";
+    private SharedPrefManager sharedPrefManager;
 
     /**
      * This constructor is required, and calls the super IntentService(String)
@@ -49,6 +50,7 @@ public class DetectedActivitiesIntentService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        sharedPrefManager = new SharedPrefManager(getApplicationContext());
     }
 
     @Override
@@ -58,9 +60,13 @@ public class DetectedActivitiesIntentService extends Service {
         ActivityRecognitionResult result = ActivityRecognitionResult.extractResult(intent);
 
         DetectedActivity activity = result.getMostProbableActivity();
-        Log.d("DetectedActivityService", "Activity Detected Notifying Activity");
+        if(!sharedPrefManager.getLastActivity().isEmpty() && !sharedPrefManager.getLastActivity().equals(toActivityString(activity.getType()))) {
+            Log.d("DetectedActivityService", "Transition Detected Notifying Activity");
 
-        sendMessage(toActivityString(activity.getType()) + " detected at " + new SimpleDateFormat("HH:mm:ss", Locale.US).format(new Date()));
+            sendMessage("Transition from " + sharedPrefManager.getLastActivity() + " to " + toActivityString(activity.getType()) + " detected at " + new SimpleDateFormat("HH:mm:ss", Locale.US).format(new Date()));
+        }
+
+        sharedPrefManager.setLastActivity(toActivityString(activity.getType()));
 
         return START_STICKY;
     }
