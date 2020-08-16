@@ -24,4 +24,7 @@
     <string name="no_thanks_activity_permission_rational">No Thanks</string>
     <string name="continue_activity_permission_rational">Continue</string>
     <string name="enable_disable_button_activity_recognition">Enable/Disable Activity Recognition</string>
+    <string name="notification_channel_id">transitions</string>
+    <string name="channel_name">Transitions Channel</string>
+    <string name="channel_description">For any activity transitions</string>
 </resources>

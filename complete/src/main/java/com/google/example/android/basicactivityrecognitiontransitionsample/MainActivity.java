@@ -16,12 +16,15 @@
 package com.google.example.android.basicactivityrecognitiontransitionsample;
 
 import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -68,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        createNotificationChannel();
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -83,10 +88,6 @@ public class MainActivity extends AppCompatActivity {
         mActivityTransitionsPendingIntent =
                 PendingIntent.getBroadcast(MainActivity.this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        // TODO: Create and register a BroadcastReceiver to listen for activity transitions.
-        // The receiver listens for the PendingIntent above that is triggered by the system when an
-        // activity transition occurs.
-
 
         printToScreen("App initialized.");
     }
@@ -94,12 +95,24 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         // TODO: Disable activity transitions when user leaves the app.
-        if (activityTrackingEnabled) {
+        /*if (activityTrackingEnabled) {
             disableActivityTransitions();
-        }
+        }*/
         super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("my-integer"));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+    }
 
     private PendingIntent getActivityDetectionPendingIntent() {
         Intent intent = new Intent(this, DetectedActivitiesIntentService.class);
@@ -217,5 +230,21 @@ public class MainActivity extends AppCompatActivity {
     private void printToScreen(@NonNull String message) {
         mLogFragment.getLogView().println(message);
         Log.d(TAG, message);
+    }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(getString(R.string.notification_channel_id), name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 }
